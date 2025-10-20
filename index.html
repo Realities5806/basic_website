@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloom - Minimalist Flower Shop</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Square Web Payments SDK -->
+    <script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -16,6 +18,10 @@
                 <li><a href="#shop">Shop</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li><button id="cart-btn" class="cart-button">
+                    <span class="cart-icon">🛒</span>
+                    <span id="cart-count" class="cart-count">0</span>
+                </button></li>
             </ul>
         </div>
     </nav>
@@ -35,7 +41,7 @@
             <h2 class="section-title">Our Collection</h2>
             <div class="product-grid">
                 <!-- Product 1 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="1" data-product-name="Classic Roses" data-product-price="45" data-product-emoji="🌹">
                     <div class="product-image">
                         <div class="placeholder-image">🌹</div>
                     </div>
@@ -44,13 +50,13 @@
                         <p>Timeless elegance in red and white</p>
                         <div class="product-footer">
                             <span class="price">$45</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 2 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="2" data-product-name="Spring Blossoms" data-product-price="38" data-product-emoji="🌸">
                     <div class="product-image">
                         <div class="placeholder-image">🌸</div>
                     </div>
@@ -59,13 +65,13 @@
                         <p>Delicate arrangement of seasonal flowers</p>
                         <div class="product-footer">
                             <span class="price">$38</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 3 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="3" data-product-name="Sunflower Joy" data-product-price="42" data-product-emoji="🌻">
                     <div class="product-image">
                         <div class="placeholder-image">🌻</div>
                     </div>
@@ -74,13 +80,13 @@
                         <p>Bright and cheerful sunflowers</p>
                         <div class="product-footer">
                             <span class="price">$42</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 4 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="4" data-product-name="Tulip Garden" data-product-price="40" data-product-emoji="🌷">
                     <div class="product-image">
                         <div class="placeholder-image">🌷</div>
                     </div>
@@ -89,13 +95,13 @@
                         <p>Graceful tulips in minimalist style</p>
                         <div class="product-footer">
                             <span class="price">$40</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 5 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="5" data-product-name="Exotic Orchids" data-product-price="65" data-product-emoji="🌺">
                     <div class="product-image">
                         <div class="placeholder-image">🌺</div>
                     </div>
@@ -104,13 +110,13 @@
                         <p>Sophisticated and rare orchid collection</p>
                         <div class="product-footer">
                             <span class="price">$65</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 6 -->
-                <div class="product-card glass">
+                <div class="product-card glass" data-product-id="6" data-product-name="Mixed Bouquet" data-product-price="50" data-product-emoji="💐">
                     <div class="product-image">
                         <div class="placeholder-image">💐</div>
                     </div>
@@ -119,7 +125,7 @@
                         <p>Artfully curated seasonal mix</p>
                         <div class="product-footer">
                             <span class="price">$50</span>
-                            <button class="btn-small">Add to Cart</button>
+                            <button class="btn-small add-to-cart-btn">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -153,11 +159,68 @@
         </div>
     </section>
 
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header glass">
+            <h2>Your Cart</h2>
+            <button id="close-cart" class="close-cart">&times;</button>
+        </div>
+
+        <div id="cart-items" class="cart-items">
+            <!-- Cart items will be dynamically added here -->
+        </div>
+
+        <div id="cart-empty" class="cart-empty">
+            <p>Your cart is empty</p>
+        </div>
+
+        <div class="cart-footer glass">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-amount">$0.00</span>
+            </div>
+            <button id="checkout-btn" class="btn checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Overlay for cart -->
+    <div id="cart-overlay" class="cart-overlay"></div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="checkout-modal">
+        <div class="checkout-content glass">
+            <div class="checkout-header">
+                <h2>Checkout</h2>
+                <button id="close-checkout" class="close-checkout">&times;</button>
+            </div>
+
+            <div class="checkout-body">
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="checkout-items"></div>
+                    <div class="checkout-total">
+                        <span>Total:</span>
+                        <span id="checkout-total-amount">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="payment-section">
+                    <h3>Payment Information</h3>
+                    <div id="card-container"></div>
+                    <button id="pay-button" class="btn">Pay Now</button>
+                    <div id="payment-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <p>&copy; 2025 Bloom. All rights reserved.</p>
         </div>
     </footer>
+
+    <script src="cart.js"></script>
 </body>
 </html>
