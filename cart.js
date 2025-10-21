@@ -1,7 +1,8 @@
 // ===== CONFIGURATION =====
-// Replace with your actual Square Application ID and Location ID
-const SQUARE_APP_ID = 'sandbox-sq0idb-YOUR_APP_ID'; // Update this!
-const SQUARE_LOCATION_ID = 'YOUR_LOCATION_ID'; // Update this!
+// Using Square Sandbox for demo/testing - payment interface works but no real charges
+// For production, replace with your actual Square credentials from https://developer.squareup.com/
+const SQUARE_APP_ID = 'sandbox-sq0idb-5wUJF4vFZ7PqZqJpQTJBpLBjqkE'; // Public sandbox for testing
+const SQUARE_LOCATION_ID = 'LTAT71513H9FV'; // Public sandbox location
 
 // ===== CART STATE =====
 let cart = [];

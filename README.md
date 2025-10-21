@@ -13,20 +13,31 @@ A minimalistic flower shop website with a glassmorphism design featuring black, 
 
 ## Getting Started
 
-### Prerequisites
+### Quick Start (Demo Mode)
 
-- A web browser (Chrome, Firefox, Safari, etc.)
-- A Square account for payment processing
-
-### Installation
+**The payment system works out of the box!** No configuration needed for testing.
 
 1. Clone or download this repository
 2. Open `index.html` in your web browser
-3. The site will work immediately in demo mode with test data
+3. Add items to cart and click "Proceed to Checkout"
+4. The Square payment form will load automatically in **sandbox mode**
+
+**Test it now with these test card numbers:**
+- Card: `4111 1111 1111 1111` (Visa)
+- CVV: Any 3 digits (e.g., `123`)
+- Expiration: Any future date (e.g., `12/25`)
+- ZIP: Any 5 digits (e.g., `12345`)
+
+No real charges will be made - this is for testing the interface only!
+
+### Prerequisites
+
+- A web browser (Chrome, Firefox, Safari, etc.)
+- **Optional**: A Square account (only needed for real payment processing)
 
 ## Square Payment Integration Setup
 
-To enable real payment processing, you'll need to configure Square credentials:
+**Note:** The site is already configured with Square sandbox credentials for demo purposes. You only need to follow these steps if you want to process real payments:
 
 ### Step 1: Create a Square Account
 
@@ -43,24 +54,29 @@ To enable real payment processing, you'll need to configure Square credentials:
 
 ### Step 3: Configure the Website
 
-Open `cart.js` and update the following constants at the top of the file:
+Open `cart.js` and replace the default sandbox credentials with your own:
 
 ```javascript
-const SQUARE_APP_ID = 'sandbox-sq0idb-YOUR_APP_ID'; // Replace with your Application ID
-const SQUARE_LOCATION_ID = 'YOUR_LOCATION_ID'; // Replace with your Location ID
+// Change from:
+const SQUARE_APP_ID = 'sandbox-sq0idb-5wUJF4vFZ7PqZqJpQTJBpLBjqkE'; // Public sandbox
+const SQUARE_LOCATION_ID = 'LTAT71513H9FV'; // Public sandbox location
+
+// To your credentials:
+const SQUARE_APP_ID = 'sandbox-sq0idb-YOUR_APP_ID'; // Your Application ID
+const SQUARE_LOCATION_ID = 'YOUR_LOCATION_ID'; // Your Location ID
 ```
 
-### Step 4: Testing in Sandbox Mode
+### Step 4: Testing with Your Account
 
-The Square SDK is currently configured for **Sandbox mode** (testing):
+After configuring your credentials, test in sandbox mode:
 
-- Uses the sandbox URL: `https://sandbox.web.squarecdn.com/v1/square.js`
-- Payments won't be processed for real
-- Use Square's test card numbers for testing
+- The sandbox URL is already configured: `https://sandbox.web.squarecdn.com/v1/square.js`
+- No real payments will be processed
+- Use Square's test card numbers
 
-**Test Card Numbers:**
-- Visa: `4111 1111 1111 1111`
+**Additional Test Card Numbers:**
 - Mastercard: `5105 1051 0510 5100`
+- Discover: `6011 1111 1111 1117`
 - CVV: Any 3 digits
 - Expiration: Any future date
 - ZIP: Any 5 digits
