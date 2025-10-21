@@ -1,8 +1,8 @@
 // ===== CONFIGURATION =====
-// Using Square Sandbox for demo/testing - payment interface works but no real charges
-// For production, replace with your actual Square credentials from https://developer.squareup.com/
-const SQUARE_APP_ID = 'sandbox-sq0idb-5wUJF4vFZ7PqZqJpQTJBpLBjqkE'; // Public sandbox for testing
-const SQUARE_LOCATION_ID = 'LTAT71513H9FV'; // Public sandbox location
+// By default, this uses a demo payment form (no Square connection required)
+// To use real Square payments, get credentials from https://developer.squareup.com/ and update below
+const SQUARE_APP_ID = 'sandbox-sq0idb-YOUR_APP_ID'; // Replace with your Square Application ID
+const SQUARE_LOCATION_ID = 'YOUR_LOCATION_ID'; // Replace with your Square Location ID
 
 // ===== CART STATE =====
 let cart = [];
@@ -180,10 +180,13 @@ function closeCheckout() {
 
 // ===== SQUARE PAYMENT INTEGRATION =====
 
+let useDemoMode = false; // Flag to track if we're using demo mode
+
 async function initSquarePayment() {
+    // Try to initialize Square, fall back to demo mode if it fails
     if (!window.Square) {
-        console.error('Square.js failed to load properly');
-        showNotification('Payment system is not available');
+        console.log('Square.js not loaded, using demo mode');
+        initDemoPaymentForm();
         return;
     }
 
@@ -194,12 +197,64 @@ async function initSquarePayment() {
 
         // Enable pay button
         document.getElementById('pay-button').disabled = false;
+        useDemoMode = false;
     } catch (e) {
-        console.error('Failed to initialize Square payment:', e);
-        document.getElementById('payment-status').innerHTML =
-            '<p class="error">Payment system initialization failed. Please check your Square credentials.</p>';
-        document.getElementById('pay-button').disabled = true;
+        console.log('Square initialization failed, using demo mode:', e);
+        initDemoPaymentForm();
     }
+}
+
+function initDemoPaymentForm() {
+    useDemoMode = true;
+    const cardContainer = document.getElementById('card-container');
+
+    cardContainer.innerHTML = `
+        <div class="demo-payment-notice">
+            <p style="color: var(--gray-400); font-size: 0.9rem; margin-bottom: 1rem;">
+                Demo Mode - Enter test card details below
+            </p>
+        </div>
+        <div class="demo-card-form">
+            <div class="form-group">
+                <label for="demo-card-number">Card Number</label>
+                <input type="text" id="demo-card-number" placeholder="4111 1111 1111 1111" maxlength="19">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="demo-expiry">Expiry</label>
+                    <input type="text" id="demo-expiry" placeholder="MM/YY" maxlength="5">
+                </div>
+                <div class="form-group">
+                    <label for="demo-cvv">CVV</label>
+                    <input type="text" id="demo-cvv" placeholder="123" maxlength="4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="demo-zip">ZIP Code</label>
+                <input type="text" id="demo-zip" placeholder="12345" maxlength="5">
+            </div>
+        </div>
+    `;
+
+    // Add input formatting
+    const cardNumberInput = document.getElementById('demo-card-number');
+    cardNumberInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+
+    const expiryInput = document.getElementById('demo-expiry');
+    expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Enable pay button
+    document.getElementById('pay-button').disabled = false;
 }
 
 async function handlePayment() {
@@ -210,15 +265,37 @@ async function handlePayment() {
     paymentStatus.innerHTML = '<p class="processing">Processing payment...</p>';
 
     try {
-        const result = await card.tokenize();
+        if (useDemoMode) {
+            // Demo mode validation and processing
+            const cardNumber = document.getElementById('demo-card-number').value.replace(/\s/g, '');
+            const expiry = document.getElementById('demo-expiry').value;
+            const cvv = document.getElementById('demo-cvv').value;
+            const zip = document.getElementById('demo-zip').value;
 
-        if (result.status === 'OK') {
-            // Here you would send the token to your server to process the payment
-            // For now, we'll simulate a successful payment
-            console.log('Payment token:', result.token);
+            // Basic validation
+            if (!cardNumber || cardNumber.length < 13) {
+                paymentStatus.innerHTML = '<p class="error">Please enter a valid card number</p>';
+                payButton.disabled = false;
+                return;
+            }
+            if (!expiry || expiry.length < 5) {
+                paymentStatus.innerHTML = '<p class="error">Please enter a valid expiry date</p>';
+                payButton.disabled = false;
+                return;
+            }
+            if (!cvv || cvv.length < 3) {
+                paymentStatus.innerHTML = '<p class="error">Please enter a valid CVV</p>';
+                payButton.disabled = false;
+                return;
+            }
+            if (!zip || zip.length < 5) {
+                paymentStatus.innerHTML = '<p class="error">Please enter a valid ZIP code</p>';
+                payButton.disabled = false;
+                return;
+            }
 
-            // Simulate server response
-            await simulatePaymentProcessing(result.token);
+            // Simulate payment processing
+            await simulatePaymentProcessing('demo-token');
 
             paymentStatus.innerHTML = '<p class="success">Payment successful! Thank you for your order.</p>';
 
@@ -230,13 +307,37 @@ async function handlePayment() {
                 closeCheckout();
                 showNotification('Order placed successfully!');
             }, 2000);
+
         } else {
-            let errorMessage = 'Payment failed. Please try again.';
-            if (result.errors) {
-                errorMessage = result.errors.map(error => error.message).join(', ');
+            // Real Square payment processing
+            const result = await card.tokenize();
+
+            if (result.status === 'OK') {
+                // Here you would send the token to your server to process the payment
+                // For now, we'll simulate a successful payment
+                console.log('Payment token:', result.token);
+
+                // Simulate server response
+                await simulatePaymentProcessing(result.token);
+
+                paymentStatus.innerHTML = '<p class="success">Payment successful! Thank you for your order.</p>';
+
+                // Clear cart after successful payment
+                setTimeout(() => {
+                    cart = [];
+                    saveCart();
+                    updateCartUI();
+                    closeCheckout();
+                    showNotification('Order placed successfully!');
+                }, 2000);
+            } else {
+                let errorMessage = 'Payment failed. Please try again.';
+                if (result.errors) {
+                    errorMessage = result.errors.map(error => error.message).join(', ');
+                }
+                paymentStatus.innerHTML = `<p class="error">${errorMessage}</p>`;
+                payButton.disabled = false;
             }
-            paymentStatus.innerHTML = `<p class="error">${errorMessage}</p>`;
-            payButton.disabled = false;
         }
     } catch (e) {
         console.error('Payment error:', e);

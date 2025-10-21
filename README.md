@@ -20,15 +20,15 @@ A minimalistic flower shop website with a glassmorphism design featuring black, 
 1. Clone or download this repository
 2. Open `index.html` in your web browser
 3. Add items to cart and click "Proceed to Checkout"
-4. The Square payment form will load automatically in **sandbox mode**
+4. A demo payment form will load automatically
 
-**Test it now with these test card numbers:**
-- Card: `4111 1111 1111 1111` (Visa)
+**Fill in the demo form with any test data:**
+- Card Number: Any 13-19 digits (e.g., `4111 1111 1111 1111`)
 - CVV: Any 3 digits (e.g., `123`)
 - Expiration: Any future date (e.g., `12/25`)
 - ZIP: Any 5 digits (e.g., `12345`)
 
-No real charges will be made - this is for testing the interface only!
+**No real charges will be made** - this is a demo interface for testing the checkout flow only! The form validates your input and simulates a successful payment.
 
 ### Prerequisites
 
@@ -37,7 +37,7 @@ No real charges will be made - this is for testing the interface only!
 
 ## Square Payment Integration Setup
 
-**Note:** The site is already configured with Square sandbox credentials for demo purposes. You only need to follow these steps if you want to process real payments:
+**Note:** By default, the site uses a demo payment form that simulates the checkout process without connecting to Square. This allows you to test the full user experience immediately. Follow these steps only if you want to integrate real Square payment processing:
 
 ### Step 1: Create a Square Account
 
